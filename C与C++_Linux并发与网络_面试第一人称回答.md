@@ -313,7 +313,9 @@ epoll 通知的是“可以尝试读写”，不是“所有业务已经完成�
 参考：[Linux epoll 手册](https://www.man7.org/linux/man-pages/man7/epoll.7.html)。
 
 ### 25. TCP 四次挥手过程是什么
-一方先发 FIN 报文表示不再发数据，对方收到后回复 ACK 确认；如果对方还有数据要继续发送，发完之后再发送 FIN，发起方回复 ACK，双方确认关闭，所以需要四次，主要是因为 TCP 是全双工，两个方向可以单独关闭。
+
+<img width="689" height="662" alt="image" src="https://github.com/user-attachments/assets/98cf866a-d5d3-4e5e-bb74-9d8edca11eee" />
+
 
 ## 复习使用方式
 
