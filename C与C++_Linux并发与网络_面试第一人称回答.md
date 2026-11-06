@@ -203,51 +203,14 @@ void quick_sort(int *a, int left, int right)
 
 ### 14. Linux 怎样用命令行创建文件
 
-我会按是否需要写入内容来选择。只想创建空文件，用 `touch notes.txt`；文件已存在时，它更新的是时间戳，不会清空内容。
-
-```sh
-touch notes.txt
-printf '%s\n' 'hello' > notes.txt
-printf '%s\n' 'next line' >> notes.txt
+在 Linux 命令行中，最常用 touch 命令来创建空文件，比如 touch test.txt，文件不存在时就会新建，存在则更新时间戳；也可以使用 > 重定向符如 > test.txt 创建空文件，echo 配合重定向可以在创建文件的同时写入内容，另外 cat > 文件名可以交互式输入内容来生成文件，vim、nano 这类编辑器打开不存在的文件，保存后也会完成文件创建。ext line' >> notes.txt
 ```
 
 `>` 会覆盖已有内容，`>>` 是追加。如果要交互编辑，我可以使用 vi 或 nano。执行前还要确认当前目录和写权限，避免写错位置。
 
 ### 15. Linux 父进程和子进程怎样执行不同代码
 
-我会用 fork 创建子进程，再根据返回值分支：父进程得到子进程 PID，子进程得到 0，创建失败返回 -1。这样两个进程从同一位置继续执行，但进入不同代码路径。
-
-```c
-#include <unistd.h>
-#include <sys/wait.h>
-#include <errno.h>
-#include <stdio.h>
-
-int main(void)
-{
-    pid_t pid = fork();
-    if (pid < 0) {
-        perror("fork");
-        return 1;
-    }
-    if (pid == 0) {
-        /* 子进程：用另一个程序替换自身。 */
-        execlp("echo", "echo", "child process", (char *)NULL);
-        _exit(127); // exec 成功不返回，运行到这里表示失败。
-    }
-    /* 父进程可以先处理自己的工作，再回收子进程。 */
-    int status;
-    while (waitpid(pid, &status, 0) < 0) {
-        if (errno != EINTR) {
-            perror("waitpid");
-            return 1;
-        }
-    }
-    return 0;
-}
-```
-
-如果只是执行不同函数，在分支中调用即可；需要运行另一个程序就用 exec 系列。父子运行顺序不固定，要等待结果就做同步。多线程进程 fork 后、exec 前的子进程还存在函数调用限制，不能随意执行复杂库逻辑。
+调用 fork () 之后会生成子进程，fork 会给父进程返回子进程 PID，给子进程返回 0，我们就靠这个返回值判断分支：在代码里用 if 判断，如果返回值大于 0 就是父进程，执行父进程逻辑；返回值等于 0 就是子进程，执行子进程逻辑；返回值小于 0 代表 fork 创建失败，这样父子进程就能各自跑不同的代码，它们拥有各自独立的地址空间，初始时子进程拷贝父进程的数据，之后各自的修改互不影响。
 
 ### 16. Linux 多线程和多进程有什么区别
 
